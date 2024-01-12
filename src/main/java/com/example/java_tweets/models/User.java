@@ -1,5 +1,7 @@
 package com.example.java_tweets.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -8,6 +10,7 @@ import java.util.List;
 
 @Entity
 public class User {
+    //add password
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -30,6 +33,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
+    @JsonIgnore
     private List<User> friends;
 
     public User() {

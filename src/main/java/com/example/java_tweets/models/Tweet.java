@@ -11,8 +11,6 @@ import java.util.List;
 @Entity
 public class Tweet {
 
-    //repostaukset, commentit, timestamp
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
