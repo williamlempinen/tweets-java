@@ -16,9 +16,13 @@ public class User {
 
     private String email;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "tweetOwner")
     @JsonManagedReference
     private List<Tweet> tweetList;
+
+    @OneToMany(mappedBy = "commentOwner")
+    @JsonManagedReference
+    private List<Comment> commentList;
 
     @ManyToMany
     @JoinTable(
@@ -31,6 +35,7 @@ public class User {
     public User() {
         this.tweetList = new ArrayList<>();
         this.friends = new ArrayList<>();
+        this.commentList = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -69,7 +74,13 @@ public class User {
         return friends;
     }
 
-    public void addFriend(User user) {
+    public void addNewFriend(User user) {
         friends.add(user);
+    }
+
+    public List<Comment> getCommentList() { return commentList; }
+
+    public void addNewComment(Comment comment) {
+        commentList.add(comment);
     }
 }
