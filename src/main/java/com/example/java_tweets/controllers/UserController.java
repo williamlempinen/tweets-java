@@ -1,11 +1,9 @@
 package com.example.java_tweets.controllers;
 
 import com.example.java_tweets.models.User;
+import com.example.java_tweets.models.UserDTO;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,7 @@ import java.util.List;
  * ###############################################
  */
 
-@Controller
+@RestController
 @RequestMapping("/api/user")
 public class UserController {
 
@@ -30,13 +28,13 @@ public class UserController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password) {
-        User user = userRepository.findByEmail(email);
+    public @ResponseBody String login(@RequestBody UserDTO user) {
+        User targetUser = userRepository.findByEmail(user.getEmail());
 
-        if (user != null && user.getPassword().equals(password)) {
-            return ResponseEntity.status(HttpStatus.OK).body("User logged in");
+        if (targetUser != null && targetUser.getPassword().equals(user.getPassword())) {
+            return "User logged in";
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        return "Invalid email or password";
     }
 
     @PostMapping("/create-user")
@@ -107,7 +105,6 @@ public class UserController {
         if (targetUser == null) {
             return new ArrayList<>();
         }
-        userRepository.delete(targetUser);
 
         return targetUser.getFriends();
     }
