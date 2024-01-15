@@ -26,7 +26,10 @@ public class Comment {
 
     private LocalDateTime timeStamp;
 
-    public Comment() { }
+    public Comment() {
+        this.timeStamp = LocalDateTime.now();
+        this.likes = 0;
+    }
 
     public Integer getId() {
         return id;

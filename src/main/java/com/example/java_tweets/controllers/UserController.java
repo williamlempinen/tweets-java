@@ -3,19 +3,23 @@ package com.example.java_tweets.controllers;
 import com.example.java_tweets.models.User;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ############################################################################
- * ############################################################################
- * #######    CREATE BETTER ERROR HANDLING    #################################
- * ############################################################################
- * ############################################################################
- *
+ * ########   ALL ENDPOINTS
+ * ###############################################
+ * ########   POST /login
+ * ########   POST /create-user
+ * ########   GET /find-all
+ * ########   POST /{userId}
+ * ########   DELETE /{userId}
+ * ########   GET /{userId}/friends
+ * ###############################################
  */
 
 @Controller
@@ -25,11 +29,22 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password) {
+        User user = userRepository.findByEmail(email);
+
+        if (user != null && user.getPassword().equals(password)) {
+            return ResponseEntity.status(HttpStatus.OK).body("User logged in");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+    }
+
     @PostMapping("/create-user")
-    public @ResponseBody String createNewUser(@RequestParam String name, @RequestParam String email) {
+    public @ResponseBody String createNewUser(@RequestParam String name, @RequestParam String email, @RequestParam String password) {
         User newUser = new User();
         newUser.setEmail(email);
         newUser.setName(name);
+        newUser.setPassword(password);
         userRepository.save(newUser);
         return "New user created!";
     }
@@ -47,14 +62,12 @@ public class UserController {
         if (targetUser == null || friendUser == null) {
             return "User not found";
         }
-
         List<User> targetFriendList = targetUser.getFriends();
         List<User> friendFriendList = friendUser.getFriends();
 
         if (targetFriendList.contains(friendUser) || friendFriendList.contains(targetUser)) {
             return "Already friends";
         }
-
         targetFriendList.add(friendUser);
         friendFriendList.add(targetUser);
 
@@ -72,14 +85,12 @@ public class UserController {
         if (targetUser == null || friendUser == null) {
             return "User not found";
         }
-
         List<User> targetFriendList = targetUser.getFriends();
         List<User> friendFriendList = friendUser.getFriends();
 
         if (!(targetFriendList.contains(friendUser) || friendFriendList.contains(targetUser))) {
             return "No such friend";
         }
-
         targetFriendList.remove(friendUser);
         friendFriendList.remove(targetUser);
 
@@ -96,6 +107,7 @@ public class UserController {
         if (targetUser == null) {
             return new ArrayList<>();
         }
+        userRepository.delete(targetUser);
 
         return targetUser.getFriends();
     }
