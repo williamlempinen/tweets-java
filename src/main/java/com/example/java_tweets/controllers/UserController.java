@@ -1,7 +1,7 @@
 package com.example.java_tweets.controllers;
 
 import com.example.java_tweets.models.User;
-import com.example.java_tweets.models.UserDTO;
+import com.example.java_tweets.models.UserLoginDTO;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public @ResponseBody String login(@RequestBody UserDTO user) {
+    public @ResponseBody String login(@RequestBody UserLoginDTO user) {
         User targetUser = userRepository.findByEmail(user.getEmail());
 
         if (targetUser != null && targetUser.getPassword().equals(user.getPassword())) {

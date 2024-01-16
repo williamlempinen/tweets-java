@@ -1,6 +1,6 @@
 package com.example.java_tweets.models;
 
-public class UserDTO {
+public class UserLoginDTO {
     private String email;
 
     private String password;
