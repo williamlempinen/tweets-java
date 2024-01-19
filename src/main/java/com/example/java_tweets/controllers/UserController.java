@@ -1,10 +1,12 @@
 package com.example.java_tweets.controllers;
 
-import com.example.java_tweets.models.User;
-import com.example.java_tweets.models.UserLoginDTO;
+import com.example.java_tweets.models.*;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +29,22 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+
     @PostMapping("/login")
-    public @ResponseBody String login(@RequestBody UserLoginDTO user) {
+    public ResponseEntity<Object> login(@RequestBody UserLoginDTO user) {
         User targetUser = userRepository.findByEmail(user.getEmail());
 
         if (targetUser != null && targetUser.getPassword().equals(user.getPassword())) {
-            return "User logged in";
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(targetUser.getId());
+            userDTO.setName(targetUser.getName());
+            userDTO.setEmail(targetUser.getEmail());
+            userDTO.setFriendsList(targetUser.getFriends());
+            userDTO.setCommentList(targetUser.getCommentList());
+            userDTO.setTweetList(targetUser.getTweetList());
+            return ResponseEntity.ok(userDTO);
         }
-        return "Invalid email or password";
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
     }
 
     @PostMapping("/create-user")
@@ -44,6 +54,7 @@ public class UserController {
         newUser.setName(name);
         newUser.setPassword(password);
         userRepository.save(newUser);
+
         return "New user created!";
     }
 
@@ -52,22 +63,41 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @PostMapping("/{userId}")
-    public @ResponseBody String addFriend(@PathVariable Integer userId, @RequestParam Integer friendUserId) {
+    //@GetMapping("/find-all-friends")
+    //public @ResponseBody Iterable<UserFriend> findAllFriends() {
+        //return userFriendRepository.findAll();
+    //}
+
+    @GetMapping("/find-all-friends")
+    public @ResponseBody Iterable<String> findAllUsersFriends() {
+        Iterable<User> allUsers = userRepository.findAll();
+        List<String> allUserFriends = new ArrayList<>();
+
+        for (User user : allUsers) {
+            allUserFriends.addAll(user.getFriends());
+        }
+        return allUserFriends;
+    }
+
+    @PostMapping("/")
+    public @ResponseBody String addFriend(@RequestParam Integer userId, @RequestParam Integer friendUserId) {
         User targetUser = userRepository.findById(userId).orElse(null);
         User friendUser = userRepository.findById(friendUserId).orElse(null);
 
         if (targetUser == null || friendUser == null) {
             return "User not found";
         }
-        List<User> targetFriendList = targetUser.getFriends();
-        List<User> friendFriendList = friendUser.getFriends();
 
-        if (targetFriendList.contains(friendUser) || friendFriendList.contains(targetUser)) {
-            return "Already friends";
+        for (String userFriend : targetUser.getFriends()) {
+            if (userFriend.substring(userFriend.indexOf("id=") + 3, userFriend.indexOf(",")).equals(friendUser.getId().toString())) {
+                return "Already friends";
+            }
         }
-        targetFriendList.add(friendUser);
-        friendFriendList.add(targetUser);
+
+        UserFriend targetFriendUser = new UserFriend(targetUser.getId(), targetUser.getName(), targetUser.getEmail());
+        UserFriend friendFriendUser = new UserFriend(friendUser.getId(), friendUser.getName(), friendUser.getEmail());
+        targetUser.getFriends().add(friendFriendUser.toString());
+        friendUser.getFriends().add(targetFriendUser.toString());
 
         userRepository.save(friendUser);
         userRepository.save(targetUser);
@@ -75,31 +105,39 @@ public class UserController {
         return "You are now friends";
     }
 
-    @DeleteMapping("/{userId}")
-    public @ResponseBody String removeFriend(@PathVariable Integer userId, @RequestParam Integer friendUserId) {
+    private boolean removeUserFriendString(List<String> userFriends, Integer friendUserId) {
+        for (String friendString : userFriends) {
+            String idString = friendString.substring(friendString.indexOf("id=") + 3, friendString.indexOf(","));
+            if (idString.equals(friendUserId.toString())) {
+                userFriends.remove(friendString);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @DeleteMapping("/")
+    public @ResponseBody String removeFriend(@RequestParam Integer userId, @RequestParam Integer friendUserId) {
         User targetUser = userRepository.findById(userId).orElse(null);
         User friendUser = userRepository.findById(friendUserId).orElse(null);
 
         if (targetUser == null || friendUser == null) {
             return "User not found";
         }
-        List<User> targetFriendList = targetUser.getFriends();
-        List<User> friendFriendList = friendUser.getFriends();
+        boolean removedFromTarget = removeUserFriendString(targetUser.getFriends(), friendUserId);
+        boolean removedFromFriend = removeUserFriendString(friendUser.getFriends(), userId);
 
-        if (!(targetFriendList.contains(friendUser) || friendFriendList.contains(targetUser))) {
-            return "No such friend";
+        if (!removedFromTarget || !removedFromFriend) {
+            return "Not friends, so can't remove";
         }
-        targetFriendList.remove(friendUser);
-        friendFriendList.remove(targetUser);
-
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
         return "You are not friends anymore";
     }
 
-    @GetMapping("/{userId}/friends")
-    public @ResponseBody Iterable<User> getFriends(@PathVariable Integer userId) {
+    @GetMapping("/friends")
+    public @ResponseBody Iterable<String> getFriends(@RequestParam Integer userId) {
         User targetUser = userRepository.findById(userId).orElse(null);
 
         if (targetUser == null) {
@@ -107,6 +145,14 @@ public class UserController {
         }
 
         return targetUser.getFriends();
+    }
+
+    @DeleteMapping("/delete-all")
+    public @ResponseBody String deleteAll() {
+        Iterable<User> userList = userRepository.findAll();
+        userRepository.deleteAll(userList);
+
+        return "All users deleted";
     }
 
 }

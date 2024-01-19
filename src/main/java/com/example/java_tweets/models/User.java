@@ -1,11 +1,11 @@
 package com.example.java_tweets.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 public class User {
@@ -20,22 +20,15 @@ public class User {
 
     private String password;
 
-    @OneToMany(mappedBy = "tweetOwner")
+    @OneToMany(mappedBy = "tweetOwner", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Tweet> tweetList;
 
-    @OneToMany(mappedBy = "commentOwner")
+    @OneToMany(mappedBy = "commentOwner", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Comment> commentList;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_friends",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id")
-    )
-    @JsonIgnore
-    private List<User> friends;
+    private List<String> friends;
 
     public User() {
         this.tweetList = new ArrayList<>();
@@ -81,17 +74,30 @@ public class User {
         tweetList.add(tweet);
     }
 
-    public List<User> getFriends() {
+    public List<String> getFriends() {
         return friends;
     }
 
-    public void addNewFriend(User user) {
-        friends.add(user);
+    public void addNewFriend(String userFriend) {
+        friends.add(userFriend);
     }
 
     public List<Comment> getCommentList() { return commentList; }
 
     public void addNewComment(Comment comment) {
         commentList.add(comment);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", tweetList=" + tweetList +
+                ", commentList=" + commentList +
+                ", friends=" + friends +
+                '}';
     }
 }

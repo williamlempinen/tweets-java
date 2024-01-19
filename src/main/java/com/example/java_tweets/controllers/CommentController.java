@@ -5,13 +5,15 @@ import com.example.java_tweets.repositorys.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Objects;
 
 /**
  * ########   ALL ENDPOINTS
  * ###############################################
- * ########   POST /{commentId}
- * ########   DELETE /{commentId}
+ * ########   POST
+ * ########   DELETE
  * ###############################################
  */
 
@@ -23,8 +25,8 @@ public class CommentController {
     private CommentRepository commentRepository;
 
     //not tested
-    @PostMapping("/{commentId}")
-    public @ResponseBody String likeComment(@PathVariable Integer commentId) {
+    @PostMapping()
+    public @ResponseBody String likeComment(@RequestParam Integer commentId) {
         Comment targetComment = commentRepository.findById(commentId).orElse(null);
 
         if (targetComment == null) {
@@ -38,8 +40,8 @@ public class CommentController {
     }
 
     //not tested
-    @DeleteMapping("/{commentId}")
-    public @ResponseBody String deleteComment(@PathVariable Integer commentId, @RequestParam Integer deleterId) {
+    @DeleteMapping()
+    public @ResponseBody String deleteComment(@RequestParam Integer commentId, @RequestParam Integer deleterId) {
         Comment targetComment = commentRepository.findById(commentId).orElse(null);
 
         if (targetComment == null) {
@@ -51,6 +53,14 @@ public class CommentController {
             return "Comment deleted";
         }
         return "Something went wrong";
+    }
+
+    @DeleteMapping("/delete-all")
+    public @ResponseBody String deleteAll() {
+        Iterable<Comment> commentList = commentRepository.findAll();
+
+        commentRepository.deleteAll(commentList);
+        return "All comments deleted";
     }
 
 }

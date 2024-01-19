@@ -134,6 +134,14 @@ public class TweetController {
         return "New comment added";
 
     }
+
+    @DeleteMapping("/delete-all")
+    public @ResponseBody String deleteAll() {
+        Iterable<Tweet> tweetList = tweetRepository.findAll();
+
+        tweetRepository.deleteAll(tweetList);
+        return "All tweets deleted";
+    }
     //get comments
     //add comment
 
