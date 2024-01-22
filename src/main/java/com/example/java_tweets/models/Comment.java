@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Comment {
@@ -22,13 +24,14 @@ public class Comment {
 
     private String content;
 
-    private Integer likes;
+    @ElementCollection
+    private Set<Integer> likes;
 
     private LocalDateTime timeStamp;
 
     public Comment() {
         this.timeStamp = LocalDateTime.now();
-        this.likes = 0;
+        this.likes = new HashSet<>();
     }
 
     public Integer getId() {
@@ -59,11 +62,15 @@ public class Comment {
 
     public void setTimeStamp(LocalDateTime localDateTime) { this.timeStamp = localDateTime; }
 
-    public Integer getLikes() { return likes; }
+    public Integer getLikes() {
+        return likes.size();
+    }
 
-    public void setLikes(Integer likes) { this.likes = likes; }
-
-    public void like() { this.likes = likes + 1; }
+    public void setLike(Integer userId) {
+        if (!likes.remove(userId)) {
+            likes.add(userId);
+        }
+    }
 
     public Tweet getOnTweet() {
         return onTweet;

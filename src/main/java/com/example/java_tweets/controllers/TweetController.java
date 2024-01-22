@@ -98,14 +98,15 @@ public class TweetController {
 
 
     @PostMapping
-    public @ResponseBody String likeTweet(@RequestParam Integer tweetId) {
+    public @ResponseBody String likeTweet(@RequestParam Integer tweetId, @RequestParam Integer userId) {
         Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
+        User targetUser = userRepository.findById(userId).orElse(null);
 
-        if (targetTweet == null) {
-            return "No such tweet";
+        if (targetTweet == null || targetUser == null) {
+            return "No such tweet or user";
         }
 
-        targetTweet.like();
+        targetTweet.setLike(userId);
         tweetRepository.save(targetTweet);
 
         return "Tweet liked";

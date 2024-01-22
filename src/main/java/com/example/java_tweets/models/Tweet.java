@@ -3,10 +3,8 @@ package com.example.java_tweets.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Tweet {
@@ -27,14 +25,15 @@ public class Tweet {
     @JsonManagedReference
     private List<Comment> tweetComments;
 
-    private Integer likes;
+    @ElementCollection
+    private Set<Integer> likes;
 
     private String ownerName;
 
     private LocalDateTime timeStamp;
 
     public Tweet() {
-        this.likes = 0;
+        this.likes = new HashSet<>();
         this.timeStamp = LocalDateTime.now();
         this.tweetComments = new ArrayList<>();
     }
@@ -63,11 +62,15 @@ public class Tweet {
         this.content = content;
     }
 
-    public Integer getLikes() { return likes; }
+    public Integer getLikes() {
+        return likes.size();
+    }
 
-    public void setLikes(Integer likes) { this.likes = likes; }
-
-    public void like() { this.likes = likes + 1; }
+    public void setLike(Integer userId) {
+        if (!likes.remove(userId)) {
+            likes.add(userId);
+        }
+    }
 
     public LocalDateTime getTimeStamp() { return timeStamp; }
 

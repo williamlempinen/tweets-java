@@ -1,7 +1,9 @@
 package com.example.java_tweets.controllers;
 
 import com.example.java_tweets.models.Comment;
+import com.example.java_tweets.models.User;
 import com.example.java_tweets.repositorys.CommentRepository;
+import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +25,20 @@ public class CommentController {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     //not tested
     @PostMapping()
-    public @ResponseBody String likeComment(@RequestParam Integer commentId) {
+    public @ResponseBody String likeComment(@RequestParam Integer commentId, @RequestParam Integer userId) {
         Comment targetComment = commentRepository.findById(commentId).orElse(null);
+        User targetUser = userRepository.findById(userId).orElse(null);
 
-        if (targetComment == null) {
-            return "No such comment";
+        if (targetComment == null || targetUser == null) {
+            return "No such comment or user";
         }
 
-        targetComment.like();
+        targetComment.setLike(userId);
         commentRepository.save(targetComment);
 
         return "Comment liked";
