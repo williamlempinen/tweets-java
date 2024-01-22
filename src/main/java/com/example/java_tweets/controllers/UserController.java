@@ -16,9 +16,11 @@ import java.util.List;
  * ########   POST /login
  * ########   POST /create-user
  * ########   GET /find-all
- * ########   POST /{userId}
- * ########   DELETE /{userId}
- * ########   GET /{userId}/friends
+ * ########   GET /find-all-friends, just for testing
+ * ########   POST                 , addFriend()
+ * ########   DELETE               , removeFriend()
+ * ########   GET /friends         , getFriends()
+ * ########   DELETE /delete-all
  * ###############################################
  */
 
@@ -28,7 +30,6 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserLoginDTO user) {
@@ -63,11 +64,6 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    //@GetMapping("/find-all-friends")
-    //public @ResponseBody Iterable<UserFriend> findAllFriends() {
-        //return userFriendRepository.findAll();
-    //}
-
     @GetMapping("/find-all-friends")
     public @ResponseBody Iterable<String> findAllUsersFriends() {
         Iterable<User> allUsers = userRepository.findAll();
@@ -79,7 +75,7 @@ public class UserController {
         return allUserFriends;
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public @ResponseBody String addFriend(@RequestParam Integer userId, @RequestParam Integer friendUserId) {
         User targetUser = userRepository.findById(userId).orElse(null);
         User friendUser = userRepository.findById(friendUserId).orElse(null);
@@ -116,7 +112,7 @@ public class UserController {
         return false;
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping()
     public @ResponseBody String removeFriend(@RequestParam Integer userId, @RequestParam Integer friendUserId) {
         User targetUser = userRepository.findById(userId).orElse(null);
         User friendUser = userRepository.findById(friendUserId).orElse(null);

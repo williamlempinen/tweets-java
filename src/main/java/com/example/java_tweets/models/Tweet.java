@@ -21,11 +21,15 @@ public class Tweet {
 
     private String content;
 
+    private String title;
+
     @OneToMany(mappedBy = "onTweet")
     @JsonManagedReference
     private List<Comment> tweetComments;
 
     private Integer likes;
+
+    private String ownerName;
 
     private LocalDateTime timeStamp;
 
@@ -75,4 +79,11 @@ public class Tweet {
         tweetComments.add(comment);
     }
 
+    public String getOwnerName() { return ownerName; }
+
+    public void setOwnerName(String name) { this.ownerName = name; }
+
+    public String getTitle() { return title; }
+
+    public void setTitle(String title) { this.title = title; }
 }

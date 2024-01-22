@@ -11,6 +11,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -18,11 +20,12 @@ import java.util.ArrayList;
  * ###############################################
  * ########   POST /post-tweet
  * ########   GET /find-all
- * ########   POST /
- * ########   GET /find-by/{userId}
- * ########   DELETE /{tweetId}
- * ########   GET /{tweetId}/comments
- * ########   POST /{tweetId}/comments
+ * ########   POST              ,like()
+ * ########   GET /find-by-user
+ * ########   GET /find-by-friends
+ * ########   DELETE            , deleteTweet()
+ * ########   GET /comments     ,getComments()
+ * ########   POST /comments    , addComment()
  * ###############################################
  */
 
@@ -40,7 +43,7 @@ public class TweetController {
     private CommentRepository commentRepository;
 
     @PostMapping("/post-tweet")
-    public @ResponseBody String postTweet(@RequestParam Integer userId, @RequestParam String content) {
+    public @ResponseBody String postTweet(@RequestParam Integer userId, @RequestParam String title, @RequestParam String content) {
         User targetUser = userRepository.findById(userId).orElse(null);
 
         if (targetUser == null) {
@@ -49,7 +52,9 @@ public class TweetController {
 
         Tweet newTweet = new Tweet();
         newTweet.setTweetOwner(targetUser);
+        newTweet.setTitle(title);
         newTweet.setContent(content);
+        newTweet.setOwnerName(targetUser.getName());
         tweetRepository.save(newTweet);
         return "New tweet posted!";
     }
@@ -59,17 +64,38 @@ public class TweetController {
         return tweetRepository.findAll();
     }
 
-    @GetMapping("/find-by-user/{userId}")
-    public @ResponseBody Iterable<Tweet> findTweetsByUser(@PathVariable Integer userId) {
+    @GetMapping("/find-by-user")
+    public @ResponseBody Iterable<Tweet> findTweetsByUser(@RequestParam Integer userId) {
         User targetUser = userRepository.findById(userId).orElse(null);
 
         if (targetUser == null) {
-            //bad way to solve this!!!
             return new ArrayList<>();
         }
 
         return tweetRepository.findByTweetOwner(targetUser);
     }
+
+    @GetMapping("/find-by-friends")
+    public @ResponseBody Iterable<Tweet> findTweetsByFriends(@RequestParam Integer userId) {
+        User targetUser = userRepository.findById(userId).orElse(null);
+
+        if (targetUser == null) {
+            return new ArrayList<>();
+        }
+        List<Integer> targetFriendIds = new ArrayList<>();
+        List<Tweet> tweetsByFriends = new ArrayList<>();
+
+        for (String friend : targetUser.getFriends()) {
+            Integer id = Integer.parseInt(friend.substring(friend.indexOf("id=") + 3, friend.indexOf(",")));
+            targetFriendIds.add(id);
+        }
+        for (Integer id : targetFriendIds) {
+            tweetsByFriends.addAll((Collection<? extends Tweet>) findTweetsByUser(id));
+        }
+        return tweetsByFriends;
+    }
+
+
 
     @PostMapping
     public @ResponseBody String likeTweet(@RequestParam Integer tweetId) {
@@ -85,8 +111,8 @@ public class TweetController {
         return "Tweet liked";
     }
 
-    @DeleteMapping("/{tweetId}")
-    public @ResponseBody String deleteTweet(@PathVariable Integer tweetId) {
+    @DeleteMapping()
+    public @ResponseBody String deleteTweet(@RequestParam Integer tweetId) {
         Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
 
         if (targetTweet == null) {
@@ -98,8 +124,8 @@ public class TweetController {
         return "Tweet deleted";
     }
 
-    @GetMapping("/{tweetId}/comments")
-    public @ResponseBody Iterable<Comment> getComments(@PathVariable Integer tweetId) {
+    @GetMapping("/comments")
+    public @ResponseBody Iterable<Comment> getComments(@RequestParam Integer tweetId) {
         Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
 
         if (targetTweet == null) {
@@ -109,8 +135,8 @@ public class TweetController {
         return targetTweet.getTweetComments();
     }
 
-    @PostMapping("/{tweetId}/comments")
-    public @ResponseBody String addComment(@PathVariable Integer tweetId, @RequestParam Integer userId, @RequestParam String content) {
+    @PostMapping("/comments")
+    public @ResponseBody String addComment(@RequestParam Integer tweetId, @RequestParam Integer userId, @RequestParam String content) {
         Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
         User commenter = userRepository.findById(userId).orElse(null);
 
@@ -142,7 +168,5 @@ public class TweetController {
         tweetRepository.deleteAll(tweetList);
         return "All tweets deleted";
     }
-    //get comments
-    //add comment
 
 }

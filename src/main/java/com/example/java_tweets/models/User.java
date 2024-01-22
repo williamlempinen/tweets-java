@@ -20,11 +20,11 @@ public class User {
 
     private String password;
 
-    @OneToMany(mappedBy = "tweetOwner", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tweetOwner")
     @JsonManagedReference
     private List<Tweet> tweetList;
 
-    @OneToMany(mappedBy = "commentOwner", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "commentOwner")
     @JsonManagedReference
     private List<Comment> commentList;
 
