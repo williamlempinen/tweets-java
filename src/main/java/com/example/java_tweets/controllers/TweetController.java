@@ -153,6 +153,7 @@ public class TweetController {
         comment.setCommentOwner(commenter);
         comment.setContent(content);
         comment.setOnTweet(targetTweet);
+        comment.setOwnerName(commenter.getName());
 
         commentRepository.save(comment);
         targetTweet.addNewComment(comment);

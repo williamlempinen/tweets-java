@@ -62,7 +62,7 @@ public class Tweet {
         this.content = content;
     }
 
-    public Integer getLikes() {
+    public Integer getLikesCount() {
         return likes.size();
     }
 
@@ -70,6 +70,10 @@ public class Tweet {
         if (!likes.remove(userId)) {
             likes.add(userId);
         }
+    }
+
+    public Set<Integer> getLikes() {
+        return likes;
     }
 
     public LocalDateTime getTimeStamp() { return timeStamp; }

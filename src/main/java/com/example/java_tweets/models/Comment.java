@@ -24,6 +24,8 @@ public class Comment {
 
     private String content;
 
+    private String ownerName;
+
     @ElementCollection
     private Set<Integer> likes;
 
@@ -58,11 +60,15 @@ public class Comment {
         this.content = content;
     }
 
+    public String getOwnerName() { return ownerName; }
+
+    public void setOwnerName(String name) { this.ownerName = name; }
+
     public LocalDateTime getTimeStamp() { return timeStamp; }
 
     public void setTimeStamp(LocalDateTime localDateTime) { this.timeStamp = localDateTime; }
 
-    public Integer getLikes() {
+    public Integer getLikesCount() {
         return likes.size();
     }
 
@@ -70,6 +76,10 @@ public class Comment {
         if (!likes.remove(userId)) {
             likes.add(userId);
         }
+    }
+
+    public Set<Integer> getLikes() {
+        return likes;
     }
 
     public Tweet getOnTweet() {
