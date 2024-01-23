@@ -79,6 +79,7 @@ public class Comment {
     }
 
     public Set<Integer> getLikes() {
+        System.out.println("test");
         return likes;
     }
 
