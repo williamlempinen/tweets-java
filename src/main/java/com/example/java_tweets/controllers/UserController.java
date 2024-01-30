@@ -34,15 +34,19 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserLoginDTO user) {
         User targetUser = userRepository.findByEmail(user.getEmail());
+        List<UserDTO> targetUserFriends = new ArrayList<>();
 
-        if (targetUser != null && targetUser.getPassword().equals(user.getPassword())) {
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId(targetUser.getId());
-            userDTO.setName(targetUser.getName());
-            userDTO.setEmail(targetUser.getEmail());
-            userDTO.setFriendsList(targetUser.getFriends());
-            userDTO.setCommentList(targetUser.getCommentList());
-            userDTO.setTweetList(targetUser.getTweetList());
+        for (User friend : targetUser.getFriends()) {
+            UserDTO friendDTO = new UserDTO();
+            friendDTO.setId(friend.getId());
+            friendDTO.setName(friend.getName());
+            friendDTO.setEmail(friend.getEmail());
+            targetUserFriends.add(friendDTO);
+        }
+
+        if (targetUser.getPassword().equals(user.getPassword())) {
+            UserDTO userDTO = User.convertToDTO(targetUser);
+            userDTO.getFriendsList().addAll(targetUserFriends);
             return ResponseEntity.ok(userDTO);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
@@ -64,14 +68,30 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/find-all-friends")
-    public @ResponseBody Iterable<String> findAllUsersFriends() {
-        Iterable<User> allUsers = userRepository.findAll();
-        List<String> allUserFriends = new ArrayList<>();
+    @GetMapping("/find-all-dtos")
+    public @ResponseBody Iterable<UserDTO> findAllUserDTOs() {
+        Iterable<User> allUsers =  userRepository.findAll();
+        List<UserDTO> allUserDTOs = new ArrayList<>();
 
         for (User user : allUsers) {
-            allUserFriends.addAll(user.getFriends());
+            allUserDTOs.add(User.convertToDTO(user));
         }
+        return allUserDTOs;
+    }
+
+
+    //endpoint is to find all users that are friends for some user
+    @GetMapping("/find-all-friends")
+    public @ResponseBody Iterable<UserDTO> findAllUsersFriends() {
+        Iterable<User> allUsers = userRepository.findAll();
+        List<UserDTO> allUserFriends = new ArrayList<>();
+
+        for (User user : allUsers) {
+            for (User friend : user.getFriends()) {
+                allUserFriends.add(User.convertToDTO(friend));
+            }
+        }
+        System.err.println(allUserFriends);
         return allUserFriends;
     }
 
@@ -84,32 +104,17 @@ public class UserController {
             return "User not found";
         }
 
-        for (String userFriend : targetUser.getFriends()) {
-            if (userFriend.substring(userFriend.indexOf("id=") + 3, userFriend.indexOf(",")).equals(friendUser.getId().toString())) {
-                return "Already friends";
-            }
+        if (targetUser.getFriends().contains(friendUser)) {
+            return "Already friends";
         }
 
-        UserFriend targetFriendUser = new UserFriend(targetUser.getId(), targetUser.getName(), targetUser.getEmail());
-        UserFriend friendFriendUser = new UserFriend(friendUser.getId(), friendUser.getName(), friendUser.getEmail());
-        targetUser.getFriends().add(friendFriendUser.toString());
-        friendUser.getFriends().add(targetFriendUser.toString());
+        targetUser.getFriends().add(friendUser);
+        friendUser.getFriends().add(targetUser);
 
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
         return "You are now friends";
-    }
-
-    private boolean removeUserFriendString(List<String> userFriends, Integer friendUserId) {
-        for (String friendString : userFriends) {
-            String idString = friendString.substring(friendString.indexOf("id=") + 3, friendString.indexOf(","));
-            if (idString.equals(friendUserId.toString())) {
-                userFriends.remove(friendString);
-                return true;
-            }
-        }
-        return false;
     }
 
     @DeleteMapping()
@@ -120,12 +125,9 @@ public class UserController {
         if (targetUser == null || friendUser == null) {
             return "User not found";
         }
-        boolean removedFromTarget = removeUserFriendString(targetUser.getFriends(), friendUserId);
-        boolean removedFromFriend = removeUserFriendString(friendUser.getFriends(), userId);
 
-        if (!removedFromTarget || !removedFromFriend) {
-            return "Not friends, so can't remove";
-        }
+        targetUser.getFriends().remove(friendUser);
+        friendUser.getFriends().remove(targetUser);
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
@@ -133,14 +135,19 @@ public class UserController {
     }
 
     @GetMapping("/friends")
-    public @ResponseBody Iterable<String> getFriends(@RequestParam Integer userId) {
+    public @ResponseBody Iterable<UserDTO> getFriends(@RequestParam Integer userId) {
         User targetUser = userRepository.findById(userId).orElse(null);
+        List<UserDTO> userDTOS = new ArrayList<>();
 
         if (targetUser == null) {
             return new ArrayList<>();
         }
 
-        return targetUser.getFriends();
+        for (User user : targetUser.getFriends()) {
+            userDTOS.add(User.convertToDTO(user));
+        }
+
+        return userDTOS;
     }
 
     @DeleteMapping("/delete-all")

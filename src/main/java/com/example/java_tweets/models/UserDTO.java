@@ -8,16 +8,16 @@ public class UserDTO {
     private String email;
     private List<Tweet> tweetList;
     private List<Comment> commentList;
-    private List<String> friendsList;
+    private List<UserDTO> friendsList;
 
     public UserDTO() {}
 
 
-    public List<String> getFriendsList() {
+    public List<UserDTO> getFriendsList() {
         return friendsList;
     }
 
-    public void setFriendsList(List<String> friendsList) {
+    public void setFriendsList(List<UserDTO> friendsList) {
         this.friendsList = friendsList;
     }
 

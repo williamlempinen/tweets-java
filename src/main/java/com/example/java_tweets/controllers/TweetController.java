@@ -85,13 +85,7 @@ public class TweetController {
         List<Integer> targetFriendIds = new ArrayList<>();
         List<Tweet> tweetsByFriends = new ArrayList<>();
 
-        for (String friend : targetUser.getFriends()) {
-            Integer id = Integer.parseInt(friend.substring(friend.indexOf("id=") + 3, friend.indexOf(",")));
-            targetFriendIds.add(id);
-        }
-        for (Integer id : targetFriendIds) {
-            tweetsByFriends.addAll((Collection<? extends Tweet>) findTweetsByUser(id));
-        }
+
         return tweetsByFriends;
     }
 
