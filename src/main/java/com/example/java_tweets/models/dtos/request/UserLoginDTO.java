@@ -1,4 +1,4 @@
-package com.example.java_tweets.models;
+package com.example.java_tweets.models.dtos.request;
 
 public class UserLoginDTO {
     private String email;

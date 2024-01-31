@@ -1,12 +1,15 @@
 package com.example.java_tweets.controllers;
 
 import com.example.java_tweets.models.*;
+import com.example.java_tweets.models.dtos.request.UserCreateDTO;
+import com.example.java_tweets.models.dtos.request.UserFriendStatusDTO;
+import com.example.java_tweets.models.dtos.request.UserLoginDTO;
+import com.example.java_tweets.models.dtos.response.UserDTO;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +25,7 @@ import java.util.List;
  * ########   GET /friends         , getFriends()
  * ########   DELETE /delete-all
  * ###############################################
+ * NOT UPDATED
  */
 
 @RestController
@@ -46,6 +50,7 @@ public class UserController {
 
         if (targetUser.getPassword().equals(user.getPassword())) {
             UserDTO userDTO = User.convertToDTO(targetUser);
+            userDTO.setFriendsList(new ArrayList<>());
             userDTO.getFriendsList().addAll(targetUserFriends);
             return ResponseEntity.ok(userDTO);
         }
@@ -53,28 +58,39 @@ public class UserController {
     }
 
     @PostMapping("/create-user")
-    public @ResponseBody String createNewUser(@RequestParam String name, @RequestParam String email, @RequestParam String password) {
-        User newUser = new User();
-        newUser.setEmail(email);
-        newUser.setName(name);
-        newUser.setPassword(password);
-        userRepository.save(newUser);
+    public ResponseEntity<Object> createNewUser(@RequestBody UserCreateDTO user) {
+        try {
+            User newUser = new User();
+            newUser.setEmail(user.getEmail());
+            newUser.setName(user.getName());
+            newUser.setPassword(user.getPassword());
+            userRepository.save(newUser);
+        } catch (Exception e) {
+            System.err.println("Error " + e);
+        }
 
-        return "New user created!";
+        return ResponseEntity.ok("User created.");
     }
 
-    @GetMapping("/find-all")
+    //this endpoint is only for testing purposes!!
+    @GetMapping("/find-all-info")
     public @ResponseBody Iterable<User> findAllUsers() {
         return userRepository.findAll();
     }
 
-    @GetMapping("/find-all-dtos")
+    @GetMapping("/find-all")
     public @ResponseBody Iterable<UserDTO> findAllUserDTOs() {
         Iterable<User> allUsers =  userRepository.findAll();
         List<UserDTO> allUserDTOs = new ArrayList<>();
 
         for (User user : allUsers) {
-            allUserDTOs.add(User.convertToDTO(user));
+            List<UserDTO> userFriendDTOs = new ArrayList<>();
+            UserDTO dto = User.convertToDTO(user);
+            for (User userFriend : user.getFriends()) {
+                userFriendDTOs.add(User.convertToDTO(userFriend));
+            }
+            dto.setFriendsList(userFriendDTOs);
+            allUserDTOs.add(dto);
         }
         return allUserDTOs;
     }
@@ -96,16 +112,16 @@ public class UserController {
     }
 
     @PostMapping()
-    public @ResponseBody String addFriend(@RequestParam Integer userId, @RequestParam Integer friendUserId) {
-        User targetUser = userRepository.findById(userId).orElse(null);
-        User friendUser = userRepository.findById(friendUserId).orElse(null);
+    public ResponseEntity<Object> addFriend(@RequestBody UserFriendStatusDTO userFriendStatusDTO) {
+        User targetUser = userRepository.findById(userFriendStatusDTO.getUserId()).orElse(null);
+        User friendUser = userRepository.findById(userFriendStatusDTO.getFriendUserId()).orElse(null);
 
         if (targetUser == null || friendUser == null) {
-            return "User not found";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
         if (targetUser.getFriends().contains(friendUser)) {
-            return "Already friends";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Already friends");
         }
 
         targetUser.getFriends().add(friendUser);
@@ -114,16 +130,16 @@ public class UserController {
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
-        return "You are now friends";
+        return ResponseEntity.ok("You are now friends");
     }
 
     @DeleteMapping()
-    public @ResponseBody String removeFriend(@RequestParam Integer userId, @RequestParam Integer friendUserId) {
-        User targetUser = userRepository.findById(userId).orElse(null);
-        User friendUser = userRepository.findById(friendUserId).orElse(null);
+    public ResponseEntity<Object> removeFriend(@RequestBody UserFriendStatusDTO userFriendStatusDTO) {
+        User targetUser = userRepository.findById(userFriendStatusDTO.getUserId()).orElse(null);
+        User friendUser = userRepository.findById(userFriendStatusDTO.getFriendUserId()).orElse(null);
 
         if (targetUser == null || friendUser == null) {
-            return "User not found";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
         targetUser.getFriends().remove(friendUser);
@@ -131,7 +147,7 @@ public class UserController {
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
-        return "You are not friends anymore";
+        return ResponseEntity.ok("You are not friends anymore");
     }
 
     @GetMapping("/friends")

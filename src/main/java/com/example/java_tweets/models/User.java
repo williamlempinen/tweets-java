@@ -1,6 +1,7 @@
 package com.example.java_tweets.models;
 
 
+import com.example.java_tweets.models.dtos.response.UserDTO;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;

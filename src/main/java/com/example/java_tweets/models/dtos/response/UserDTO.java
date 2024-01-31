@@ -1,4 +1,7 @@
-package com.example.java_tweets.models;
+package com.example.java_tweets.models.dtos.response;
+
+import com.example.java_tweets.models.Comment;
+import com.example.java_tweets.models.Tweet;
 
 import java.util.List;
 
