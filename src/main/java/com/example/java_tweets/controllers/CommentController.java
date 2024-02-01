@@ -2,6 +2,7 @@ package com.example.java_tweets.controllers;
 
 import com.example.java_tweets.models.Comment;
 import com.example.java_tweets.models.User;
+import com.example.java_tweets.models.dtos.request.CommentEventDTO;
 import com.example.java_tweets.repositorys.CommentRepository;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +31,15 @@ public class CommentController {
 
     //not tested
     @PostMapping()
-    public @ResponseBody String likeComment(@RequestParam Integer commentId, @RequestParam Integer userId) {
-        Comment targetComment = commentRepository.findById(commentId).orElse(null);
-        User targetUser = userRepository.findById(userId).orElse(null);
+    public @ResponseBody String likeComment(@RequestBody CommentEventDTO commentEventDTO) {
+        Comment targetComment = commentRepository.findById(commentEventDTO.getCommentId()).orElse(null);
+        User targetUser = userRepository.findById(commentEventDTO.getUserId()).orElse(null);
 
         if (targetComment == null || targetUser == null) {
             return "No such comment or user";
         }
 
-        targetComment.setLike(userId);
+        targetComment.setLike(commentEventDTO.getUserId());
         commentRepository.save(targetComment);
 
         return "Comment liked";
@@ -46,14 +47,14 @@ public class CommentController {
 
     //not tested
     @DeleteMapping()
-    public @ResponseBody String deleteComment(@RequestParam Integer commentId, @RequestParam Integer deleterId) {
-        Comment targetComment = commentRepository.findById(commentId).orElse(null);
+    public @ResponseBody String deleteComment(@RequestBody CommentEventDTO commentEventDTO) {
+        Comment targetComment = commentRepository.findById(commentEventDTO.getCommentId()).orElse(null);
 
         if (targetComment == null) {
             return "No such comment";
         }
 
-        if (Objects.equals(targetComment.getCommentOwner().getId(), deleterId) || Objects.equals(targetComment.getOnTweet().getTweetOwner().getId(), deleterId)) {
+        if (Objects.equals(targetComment.getCommentOwner().getId(), commentEventDTO.getUserId()) || Objects.equals(targetComment.getOnTweet().getTweetOwner().getId(), commentEventDTO.getUserId())) {
             commentRepository.delete(targetComment);
             return "Comment deleted";
         }
