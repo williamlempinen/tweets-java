@@ -13,9 +13,6 @@ public class UserDTO {
     private List<Comment> commentList;
     private List<UserDTO> friendsList;
 
-    public UserDTO() {}
-
-
     public List<UserDTO> getFriendsList() {
         return friendsList;
     }

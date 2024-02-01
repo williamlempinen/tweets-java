@@ -18,7 +18,7 @@ import java.util.Objects;
  * ###############################################
  */
 
-@Controller
+@RestController
 @RequestMapping("/api/comment")
 public class CommentController {
 

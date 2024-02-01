@@ -3,16 +3,21 @@ package com.example.java_tweets.controllers;
 import com.example.java_tweets.models.Comment;
 import com.example.java_tweets.models.Tweet;
 import com.example.java_tweets.models.User;
+import com.example.java_tweets.models.dtos.request.TweetPostCommentDTO;
+import com.example.java_tweets.models.dtos.request.TweetPostTweetDTO;
 import com.example.java_tweets.repositorys.CommentRepository;
 import com.example.java_tweets.repositorys.TweetRepository;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -29,7 +34,7 @@ import java.util.List;
  * ###############################################
  */
 
-@Controller
+@RestController
 @RequestMapping("/api/tweet")
 public class TweetController {
 
@@ -43,20 +48,20 @@ public class TweetController {
     private CommentRepository commentRepository;
 
     @PostMapping("/post-tweet")
-    public @ResponseBody String postTweet(@RequestParam Integer userId, @RequestParam String title, @RequestParam String content) {
-        User targetUser = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<Object> postTweet(@RequestBody TweetPostTweetDTO tweetPostTweetDTO) {
+        User targetUser = userRepository.findById(tweetPostTweetDTO.getUserId()).orElse(null);
 
         if (targetUser == null) {
-            return "User not found";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user");
         }
 
         Tweet newTweet = new Tweet();
         newTweet.setTweetOwner(targetUser);
-        newTweet.setTitle(title);
-        newTweet.setContent(content);
+        newTweet.setTitle(tweetPostTweetDTO.getTitle());
+        newTweet.setContent(tweetPostTweetDTO.getContent());
         newTweet.setOwnerName(targetUser.getName());
         tweetRepository.save(newTweet);
-        return "New tweet posted!";
+        return ResponseEntity.ok("Tweeted");
     }
 
     @GetMapping("/find-all")
@@ -76,17 +81,24 @@ public class TweetController {
     }
 
     @GetMapping("/find-by-friends")
-    public @ResponseBody Iterable<Tweet> findTweetsByFriends(@RequestParam Integer userId) {
+    public @ResponseBody Iterable<Tweet> findByFriendsTweets(@RequestParam Integer userId) {
         User targetUser = userRepository.findById(userId).orElse(null);
+        List<Tweet> friendsTweets = new ArrayList<>();
+        List<Integer> targetFriendIds = new ArrayList<>();
 
         if (targetUser == null) {
             return new ArrayList<>();
         }
-        List<Integer> targetFriendIds = new ArrayList<>();
-        List<Tweet> tweetsByFriends = new ArrayList<>();
+        for (User user : targetUser.getFriends()) {
+            targetFriendIds.add(user.getId());
+        }
+        for (Integer user : targetFriendIds) {
+            for (Tweet tweet : findTweetsByUser(user)) {
+                friendsTweets.add(tweet);
+            }
+        }
 
-
-        return tweetsByFriends;
+        return friendsTweets;
     }
 
 
@@ -131,21 +143,21 @@ public class TweetController {
     }
 
     @PostMapping("/comments")
-    public @ResponseBody String addComment(@RequestParam Integer tweetId, @RequestParam Integer userId, @RequestParam String content) {
-        Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
-        User commenter = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<Object> addComment(@RequestBody TweetPostCommentDTO tweetPostCommentDTO) {
+        Tweet targetTweet = tweetRepository.findById(tweetPostCommentDTO.getTweetId()).orElse(null);
+        User commenter = userRepository.findById(tweetPostCommentDTO.getUserId()).orElse(null);
 
         if (targetTweet == null) {
-            return "No such tweet found";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid tweet");
         }
 
         if (commenter == null) {
-            return "Commenting user not found";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user");
         }
 
         Comment comment = new Comment();
         comment.setCommentOwner(commenter);
-        comment.setContent(content);
+        comment.setContent(tweetPostCommentDTO.getContent());
         comment.setOnTweet(targetTweet);
         comment.setOwnerName(commenter.getName());
 
@@ -153,8 +165,7 @@ public class TweetController {
         targetTweet.addNewComment(comment);
         tweetRepository.save(targetTweet);
 
-        return "New comment added";
-
+        return ResponseEntity.ok("Commented.");
     }
 
     @DeleteMapping("/delete-all")
