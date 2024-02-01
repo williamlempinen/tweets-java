@@ -7,6 +7,9 @@ import com.example.java_tweets.models.dtos.request.UserLoginDTO;
 import com.example.java_tweets.models.dtos.response.UserDTO;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,6 +73,14 @@ public class UserController {
         }
 
         return ResponseEntity.ok("User created.");
+    }
+
+    @GetMapping("/search")
+    public @ResponseBody Iterable<UserDTO> searchUsers(@RequestParam String query, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "4") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> userPage = userRepository.findByNameContainingIgnoreCase(query, pageable);
+
+        return userPage.map(User::convertToDTO);
     }
 
     //this endpoint is only for testing purposes!!

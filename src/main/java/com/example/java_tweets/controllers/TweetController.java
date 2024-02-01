@@ -4,11 +4,15 @@ import com.example.java_tweets.models.Comment;
 import com.example.java_tweets.models.Tweet;
 import com.example.java_tweets.models.User;
 import com.example.java_tweets.models.dtos.request.TweetPostCommentDTO;
+import com.example.java_tweets.models.dtos.request.TweetPostLikeDTO;
 import com.example.java_tweets.models.dtos.request.TweetPostTweetDTO;
 import com.example.java_tweets.repositorys.CommentRepository;
 import com.example.java_tweets.repositorys.TweetRepository;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,9 +68,16 @@ public class TweetController {
         return ResponseEntity.ok("Tweeted");
     }
 
+    @GetMapping("/search")
+    public @ResponseBody Iterable<Tweet> searchTweets(@RequestParam String query, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return tweetRepository.findByContentContainingIgnoreCase(query, pageable);
+    }
+
     @GetMapping("/find-all")
-    public @ResponseBody Iterable<Tweet> findAllTweets() {
-        return tweetRepository.findAll();
+    public @ResponseBody Iterable<Tweet> findAllTweets(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return tweetRepository.findAll(pageable);
     }
 
     @GetMapping("/find-by-user")
@@ -104,15 +115,15 @@ public class TweetController {
 
 
     @PostMapping
-    public @ResponseBody String likeTweet(@RequestParam Integer tweetId, @RequestParam Integer userId) {
-        Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
-        User targetUser = userRepository.findById(userId).orElse(null);
+    public @ResponseBody String likeTweet(@RequestBody TweetPostLikeDTO tweetPostLikeDTO) {
+        Tweet targetTweet = tweetRepository.findById(tweetPostLikeDTO.getTweetId()).orElse(null);
+        User targetUser = userRepository.findById(tweetPostLikeDTO.getUserId()).orElse(null);
 
         if (targetTweet == null || targetUser == null) {
             return "No such tweet or user";
         }
 
-        targetTweet.setLike(userId);
+        targetTweet.setLike(tweetPostLikeDTO.getUserId());
         tweetRepository.save(targetTweet);
 
         return "Tweet liked";
