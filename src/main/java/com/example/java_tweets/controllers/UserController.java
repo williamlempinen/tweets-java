@@ -76,7 +76,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public @ResponseBody Iterable<UserDTO> searchUsers(@RequestParam String query, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "4") Integer size) {
+    public @ResponseBody Iterable<UserDTO> searchUsers(@RequestParam String query, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> userPage = userRepository.findByNameContainingIgnoreCase(query, pageable);
 
@@ -124,6 +124,7 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<Object> addFriend(@RequestBody UserFriendStatusDTO userFriendStatusDTO) {
+        System.err.println(userFriendStatusDTO.toString());
         User targetUser = userRepository.findById(userFriendStatusDTO.getUserId()).orElse(null);
         User friendUser = userRepository.findById(userFriendStatusDTO.getFriendUserId()).orElse(null);
 
@@ -146,6 +147,7 @@ public class UserController {
 
     @DeleteMapping()
     public ResponseEntity<Object> removeFriend(@RequestBody UserFriendStatusDTO userFriendStatusDTO) {
+        System.err.println(userFriendStatusDTO.toString());
         User targetUser = userRepository.findById(userFriendStatusDTO.getUserId()).orElse(null);
         User friendUser = userRepository.findById(userFriendStatusDTO.getFriendUserId()).orElse(null);
 

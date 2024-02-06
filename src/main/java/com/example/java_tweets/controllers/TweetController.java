@@ -9,10 +9,12 @@ import com.example.java_tweets.models.dtos.request.TweetPostTweetDTO;
 import com.example.java_tweets.repositorys.CommentRepository;
 import com.example.java_tweets.repositorys.TweetRepository;
 import com.example.java_tweets.repositorys.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,6 +66,7 @@ public class TweetController {
         newTweet.setTitle(tweetPostTweetDTO.getTitle());
         newTweet.setContent(tweetPostTweetDTO.getContent());
         newTweet.setOwnerName(targetUser.getName());
+        newTweet.setOwnerId(targetUser.getId());
         tweetRepository.save(newTweet);
         return ResponseEntity.ok("Tweeted");
     }
@@ -76,7 +79,8 @@ public class TweetController {
 
     @GetMapping("/find-all")
     public @ResponseBody Iterable<Tweet> findAllTweets(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Sort sort = Sort.by(Sort.Direction.DESC, "timeStamp");
+        Pageable pageable = PageRequest.of(page, size, sort);
         return tweetRepository.findAll(pageable);
     }
 
@@ -128,7 +132,7 @@ public class TweetController {
 
         return "Tweet liked";
     }
-
+    @Transactional
     @DeleteMapping()
     public @ResponseBody String deleteTweet(@RequestParam Integer tweetId) {
         Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
@@ -137,6 +141,7 @@ public class TweetController {
             return "No such tweet";
         }
 
+        commentRepository.deleteByOnTweetId(tweetId);
         tweetRepository.delete(targetTweet);
 
         return "Tweet deleted";

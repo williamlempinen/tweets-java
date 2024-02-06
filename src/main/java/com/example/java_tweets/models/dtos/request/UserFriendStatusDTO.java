@@ -3,6 +3,7 @@ package com.example.java_tweets.models.dtos.request;
 public class UserFriendStatusDTO {
     private Integer userId;
     private Integer friendUserId;
+    private String friendUserName;
 
     public Integer getUserId() {
         return userId;
@@ -20,4 +21,20 @@ public class UserFriendStatusDTO {
         this.friendUserId = friendUserId;
     }
 
+    public String getFriendUserName() {
+        return friendUserName;
+    }
+
+    public void setFriendUserName(String friendUserName) {
+        this.friendUserName = friendUserName;
+    }
+
+    @Override
+    public String toString() {
+        return "UserFriendStatusDTO{" +
+                "userId=" + userId +
+                ", friendUserId=" + friendUserId +
+                ", friendUserName='" + friendUserName + '\'' +
+                '}';
+    }
 }
