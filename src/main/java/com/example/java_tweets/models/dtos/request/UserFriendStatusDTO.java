@@ -4,6 +4,7 @@ public class UserFriendStatusDTO {
     private Integer userId;
     private Integer friendUserId;
     private String friendUserName;
+    private String friendUserEmail;
 
     public Integer getUserId() {
         return userId;
@@ -29,12 +30,21 @@ public class UserFriendStatusDTO {
         this.friendUserName = friendUserName;
     }
 
+    public String getFriendUserEmail() {
+        return friendUserEmail;
+    }
+
+    public void setFriendUserEmail(String friendUserEmail) {
+        this.friendUserEmail = friendUserEmail;
+    }
+
     @Override
     public String toString() {
         return "UserFriendStatusDTO{" +
                 "userId=" + userId +
                 ", friendUserId=" + friendUserId +
                 ", friendUserName='" + friendUserName + '\'' +
+                ", friendUserEmail='" + friendUserEmail + '\'' +
                 '}';
     }
 }

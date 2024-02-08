@@ -19,6 +19,8 @@ public class Tweet {
 
     private Integer ownerId;
 
+    private String ownerEmail;
+
     private String content;
 
     private String title;
@@ -102,5 +104,13 @@ public class Tweet {
 
     public void setOwnerId(Integer ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public String getOwnerEmail() {
+        return ownerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
     }
 }

@@ -2,9 +2,9 @@ package com.example.java_tweets.models.dtos.request;
 
 public class TweetPostTweetDTO {
     private Integer userId;
+    private String userEmail;
     private String title;
     private String content;
-
     public Integer getUserId() {
         return userId;
     }
@@ -29,4 +29,21 @@ public class TweetPostTweetDTO {
         this.content = content;
     }
 
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    @Override
+    public String toString() {
+        return "TweetPostTweetDTO{" +
+                "userId=" + userId +
+                ", userEmail='" + userEmail + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                '}';
+    }
 }

@@ -30,6 +30,7 @@ import java.util.Objects;
  * ########   ALL ENDPOINTS
  * ###############################################
  * ########   POST /post-tweet
+ * ########   GET /search
  * ########   GET /find-all
  * ########   POST              ,like()
  * ########   GET /find-by-user
@@ -56,6 +57,7 @@ public class TweetController {
     @PostMapping("/post-tweet")
     public ResponseEntity<Object> postTweet(@RequestBody TweetPostTweetDTO tweetPostTweetDTO) {
         User targetUser = userRepository.findById(tweetPostTweetDTO.getUserId()).orElse(null);
+        System.err.println(tweetPostTweetDTO.toString());
 
         if (targetUser == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user");
@@ -67,6 +69,7 @@ public class TweetController {
         newTweet.setContent(tweetPostTweetDTO.getContent());
         newTweet.setOwnerName(targetUser.getName());
         newTweet.setOwnerId(targetUser.getId());
+        newTweet.setOwnerEmail(tweetPostTweetDTO.getUserEmail());
         tweetRepository.save(newTweet);
         return ResponseEntity.ok("Tweeted");
     }

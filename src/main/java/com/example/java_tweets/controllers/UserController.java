@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,9 @@ import java.util.List;
  * ###############################################
  * ########   POST /login
  * ########   POST /create-user
+ * ########   GET /find-all-info   , testing
  * ########   GET /find-all
+ * ########   GET /search
  * ########   GET /find-all-friends, just for testing
  * ########   POST                 , addFriend()
  * ########   DELETE               , removeFriend()
@@ -41,20 +44,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody UserLoginDTO user) {
         User targetUser = userRepository.findByEmail(user.getEmail());
-        List<UserDTO> targetUserFriends = new ArrayList<>();
-
-        for (User friend : targetUser.getFriends()) {
-            UserDTO friendDTO = new UserDTO();
-            friendDTO.setId(friend.getId());
-            friendDTO.setName(friend.getName());
-            friendDTO.setEmail(friend.getEmail());
-            targetUserFriends.add(friendDTO);
-        }
-
-        if (targetUser.getPassword().equals(user.getPassword())) {
+        if (targetUser != null && targetUser.getPassword().equals(user.getPassword())) {
             UserDTO userDTO = User.convertToDTO(targetUser);
-            userDTO.setFriendsList(new ArrayList<>());
-            userDTO.getFriendsList().addAll(targetUserFriends);
+            userDTO.setFriendsList(convertUserFriendsToDTOList(targetUser.getFriends()));
             return ResponseEntity.ok(userDTO);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
@@ -70,6 +62,7 @@ public class UserController {
             userRepository.save(newUser);
         } catch (Exception e) {
             System.err.println("Error " + e);
+            return ResponseEntity.badRequest().body("Error creating user: " + e.getMessage());
         }
 
         return ResponseEntity.ok("User created.");
@@ -118,13 +111,11 @@ public class UserController {
                 allUserFriends.add(User.convertToDTO(friend));
             }
         }
-        System.err.println(allUserFriends);
         return allUserFriends;
     }
 
     @PostMapping()
-    public ResponseEntity<Object> addFriend(@RequestBody UserFriendStatusDTO userFriendStatusDTO) {
-        System.err.println(userFriendStatusDTO.toString());
+    public ResponseEntity<Object> addFriend(@RequestBody @Validated UserFriendStatusDTO userFriendStatusDTO) {
         User targetUser = userRepository.findById(userFriendStatusDTO.getUserId()).orElse(null);
         User friendUser = userRepository.findById(userFriendStatusDTO.getFriendUserId()).orElse(null);
 
@@ -142,12 +133,14 @@ public class UserController {
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
-        return ResponseEntity.ok("You are now friends");
+        UserDTO userDTO = User.convertToDTO(targetUser);
+        userDTO.setFriendsList(convertUserFriendsToDTOList(targetUser.getFriends()));
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @DeleteMapping()
     public ResponseEntity<Object> removeFriend(@RequestBody UserFriendStatusDTO userFriendStatusDTO) {
-        System.err.println(userFriendStatusDTO.toString());
         User targetUser = userRepository.findById(userFriendStatusDTO.getUserId()).orElse(null);
         User friendUser = userRepository.findById(userFriendStatusDTO.getFriendUserId()).orElse(null);
 
@@ -155,12 +148,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
+        if (!targetUser.getFriends().contains(friendUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Users are not friends and cannot be removed.");
+        }
+
         targetUser.getFriends().remove(friendUser);
         friendUser.getFriends().remove(targetUser);
         userRepository.save(friendUser);
         userRepository.save(targetUser);
 
-        return ResponseEntity.ok("You are not friends anymore");
+        UserDTO userDTO = User.convertToDTO(targetUser);
+        userDTO.setFriendsList(convertUserFriendsToDTOList(targetUser.getFriends()));
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping("/friends")
@@ -185,6 +185,18 @@ public class UserController {
         userRepository.deleteAll(userList);
 
         return "All users deleted";
+    }
+
+    private List<UserDTO> convertUserFriendsToDTOList(List<User> friends) {
+        List<UserDTO> targetUserFriends = new ArrayList<>();
+        for (User friend : friends) {
+            UserDTO friendDTO = new UserDTO();
+            friendDTO.setId(friend.getId());
+            friendDTO.setName(friend.getName());
+            friendDTO.setEmail(friend.getEmail());
+            targetUserFriends.add(friendDTO);
+        }
+        return targetUserFriends;
     }
 
 }

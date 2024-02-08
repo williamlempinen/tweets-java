@@ -116,9 +116,6 @@ public class User {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", tweetList=" + tweetList +
-                ", commentList=" + commentList +
-                ", friends=" + friends +
                 '}';
     }
 }
