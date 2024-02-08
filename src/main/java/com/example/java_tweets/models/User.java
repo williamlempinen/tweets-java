@@ -1,15 +1,19 @@
 package com.example.java_tweets.models;
 
 
+import com.example.java_tweets.models.dtos.response.UserDTO;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Entity
 public class User {
-    //add password
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -28,7 +32,13 @@ public class User {
     @JsonManagedReference
     private List<Comment> commentList;
 
-    private List<String> friends;
+    @ManyToMany
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private List<User> friends;
 
     public User() {
         this.tweetList = new ArrayList<>();
@@ -74,11 +84,11 @@ public class User {
         tweetList.add(tweet);
     }
 
-    public List<String> getFriends() {
+    public List<User> getFriends() {
         return friends;
     }
 
-    public void addNewFriend(String userFriend) {
+    public void addNewFriend(User userFriend) {
         friends.add(userFriend);
     }
 
@@ -88,6 +98,17 @@ public class User {
         commentList.add(comment);
     }
 
+    public static UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setTweetList(user.getTweetList());
+        dto.setCommentList(user.getCommentList());
+
+        return dto;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -95,9 +116,6 @@ public class User {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", tweetList=" + tweetList +
-                ", commentList=" + commentList +
-                ", friends=" + friends +
                 '}';
     }
 }

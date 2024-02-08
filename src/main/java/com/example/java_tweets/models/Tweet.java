@@ -17,6 +17,10 @@ public class Tweet {
     @JsonBackReference
     private User tweetOwner;
 
+    private Integer ownerId;
+
+    private String ownerEmail;
+
     private String content;
 
     private String title;
@@ -93,4 +97,20 @@ public class Tweet {
     public String getTitle() { return title; }
 
     public void setTitle(String title) { this.title = title; }
+
+    public Integer getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Integer ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerEmail() {
+        return ownerEmail;
+    }
+
+    public void setOwnerEmail(String ownerEmail) {
+        this.ownerEmail = ownerEmail;
+    }
 }
