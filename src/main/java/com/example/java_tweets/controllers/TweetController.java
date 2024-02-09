@@ -45,14 +45,17 @@ import java.util.Objects;
 @RequestMapping("/api/tweet")
 public class TweetController {
 
-    @Autowired
-    private TweetRepository tweetRepository;
+    private final TweetRepository tweetRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
+
+    public TweetController(TweetRepository tweetRepository, UserRepository userRepository, CommentRepository commentRepository) {
+        this.tweetRepository = tweetRepository;
+        this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
+    }
 
     @PostMapping("/post-tweet")
     public ResponseEntity<Object> postTweet(@RequestBody TweetPostTweetDTO tweetPostTweetDTO) {

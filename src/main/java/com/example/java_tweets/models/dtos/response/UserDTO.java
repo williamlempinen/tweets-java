@@ -12,6 +12,7 @@ public class UserDTO {
     private List<Tweet> tweetList;
     private List<Comment> commentList;
     private List<UserDTO> friendsList;
+    private String token;
 
     public List<UserDTO> getFriendsList() {
         return friendsList;
@@ -62,6 +63,13 @@ public class UserDTO {
         this.id = id;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     @Override
     public String toString() {

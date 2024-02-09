@@ -4,6 +4,7 @@ import com.example.java_tweets.models.Comment;
 import com.example.java_tweets.models.User;
 import com.example.java_tweets.models.dtos.request.CommentEventDTO;
 import com.example.java_tweets.repositorys.CommentRepository;
+import com.example.java_tweets.repositorys.TweetRepository;
 import com.example.java_tweets.repositorys.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,13 +24,15 @@ import java.util.Objects;
 @RequestMapping("/api/comment")
 public class CommentController {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    //not tested
+    public CommentController(CommentRepository commentRepository, UserRepository userRepository) {
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+    }
+
     @PostMapping()
     public @ResponseBody String likeComment(@RequestBody CommentEventDTO commentEventDTO) {
         Comment targetComment = commentRepository.findById(commentEventDTO.getCommentId()).orElse(null);
