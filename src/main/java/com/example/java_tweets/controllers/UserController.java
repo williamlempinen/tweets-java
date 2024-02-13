@@ -1,11 +1,13 @@
 package com.example.java_tweets.controllers;
 
+import com.example.java_tweets.config.UserAuthProvider;
 import com.example.java_tweets.models.*;
 import com.example.java_tweets.models.dtos.request.UserCreateDTO;
 import com.example.java_tweets.models.dtos.request.UserFriendStatusDTO;
 import com.example.java_tweets.models.dtos.request.UserLoginDTO;
 import com.example.java_tweets.models.dtos.response.UserDTO;
 import com.example.java_tweets.repositorys.UserRepository;
+import com.example.java_tweets.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,30 +41,26 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
+    private final UserAuthProvider userAuthProvider;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, UserService userService, UserAuthProvider userAuthProvider) {
         this.userRepository = userRepository;
+        this.userService = userService;
+        this.userAuthProvider = userAuthProvider;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody UserLoginDTO user) {
-        User targetUser = userRepository.findByEmail(user.getEmail());
-        if (targetUser != null && targetUser.getPassword().equals(user.getPassword())) {
-            UserDTO userDTO = User.convertToDTO(targetUser);
-            userDTO.setFriendsList(convertUserFriendsToDTOList(targetUser.getFriends()));
-            return ResponseEntity.ok(userDTO);
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
+    public ResponseEntity<Object> login(@RequestBody UserLoginDTO user) throws Exception {
+        UserDTO userDTO = userService.login(user);
+        userDTO.setToken(userAuthProvider.createToken(userDTO));
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/create-user")
     public ResponseEntity<Object> createNewUser(@RequestBody UserCreateDTO user) {
         try {
-            User newUser = new User();
-            newUser.setEmail(user.getEmail());
-            newUser.setName(user.getName());
-            newUser.setPassword(user.getPassword());
-            userRepository.save(newUser);
+            userService.createUser(user);
         } catch (Exception e) {
             System.err.println("Error " + e);
             return ResponseEntity.badRequest().body("Error creating user: " + e.getMessage());

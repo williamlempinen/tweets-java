@@ -60,7 +60,7 @@ public class TweetController {
     @PostMapping("/post-tweet")
     public ResponseEntity<Object> postTweet(@RequestBody TweetPostTweetDTO tweetPostTweetDTO) {
         User targetUser = userRepository.findById(tweetPostTweetDTO.getUserId()).orElse(null);
-        System.err.println(tweetPostTweetDTO.toString());
+        System.err.println(tweetPostTweetDTO);
 
         if (targetUser == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user");
