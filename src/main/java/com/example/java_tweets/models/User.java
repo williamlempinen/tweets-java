@@ -24,15 +24,15 @@ public class User {
 
     private String password;
 
-    @OneToMany(mappedBy = "tweetOwner")
+    @OneToMany(mappedBy = "tweetOwner", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Tweet> tweetList;
 
-    @OneToMany(mappedBy = "commentOwner")
+    @OneToMany(mappedBy = "commentOwner", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Comment> commentList;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_friends",
             joinColumns = @JoinColumn(name = "user_id"),
