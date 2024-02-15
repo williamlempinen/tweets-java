@@ -129,7 +129,7 @@ public class UserService {
         return userDTO;
     }
 
-    public List<UserDTO> getFriends(Integer userId) throws UserNotFoundException {
+    public List<UserDTO> getFriends(int userId) throws UserNotFoundException {
         User targetUser = userRepository.findById(userId).orElse(null);
 
         if (targetUser == null) {

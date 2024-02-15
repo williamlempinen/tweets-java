@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TweetRepository extends JpaRepository<Tweet, Integer> {
-    Iterable<Tweet> findByTweetOwner(User tweetOwner);
+    List<Tweet> findByTweetOwner(User tweetOwner);
 
     Page<Tweet> findByContentContainingIgnoreCase(String content, Pageable pageable);
 }

@@ -60,8 +60,8 @@ public class UserController {
 
     @GetMapping("/search")
     public @ResponseBody Iterable<UserDTO> searchUsers(@RequestParam String query,
-                                                       @RequestParam(defaultValue = "0") Integer page,
-                                                       @RequestParam(defaultValue = "10") Integer size) {
+                                                       @RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "10") int size) {
         return userService.searchUsers(query, page, size);
     }
 
@@ -99,7 +99,7 @@ public class UserController {
     }
 
     @GetMapping("/friends")
-    public @ResponseBody List<UserDTO> getFriends(@RequestParam Integer userId) {
+    public @ResponseBody List<UserDTO> getFriends(@RequestParam int userId) {
         return userService.getFriends(userId);
     }
 

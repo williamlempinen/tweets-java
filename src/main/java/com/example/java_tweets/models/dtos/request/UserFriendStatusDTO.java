@@ -1,12 +1,12 @@
 package com.example.java_tweets.models.dtos.request;
 
 public class UserFriendStatusDTO {
-    private Integer userId;
-    private Integer friendUserId;
+    private int userId;
+    private int friendUserId;
     private String friendUserName;
     private String friendUserEmail;
 
-    public Integer getUserId() {
+    public int getUserId() {
         return userId;
     }
 
@@ -14,11 +14,11 @@ public class UserFriendStatusDTO {
         this.userId = userId;
     }
 
-    public Integer getFriendUserId() {
+    public int getFriendUserId() {
         return friendUserId;
     }
 
-    public void setFriendUserId(Integer friendUserId) {
+    public void setFriendUserId(int friendUserId) {
         this.friendUserId = friendUserId;
     }
 

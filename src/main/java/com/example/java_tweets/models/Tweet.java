@@ -11,13 +11,13 @@ public class Tweet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private int id;
 
     @ManyToOne
     @JsonBackReference
     private User tweetOwner;
 
-    private Integer ownerId;
+    private int ownerId;
 
     private String ownerEmail;
 
@@ -42,11 +42,11 @@ public class Tweet {
         this.tweetComments = new ArrayList<>();
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -66,11 +66,11 @@ public class Tweet {
         this.content = content;
     }
 
-    public Integer getLikesCount() {
+    public int getLikesCount() {
         return likes.size();
     }
 
-    public void setLike(Integer userId) {
+    public void setLike(int userId) {
         if (!likes.remove(userId)) {
             likes.add(userId);
         }
@@ -98,11 +98,11 @@ public class Tweet {
 
     public void setTitle(String title) { this.title = title; }
 
-    public Integer getOwnerId() {
+    public int getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(Integer ownerId) {
+    public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
     }
 

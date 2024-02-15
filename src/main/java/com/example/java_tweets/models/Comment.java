@@ -12,7 +12,7 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private int id;
 
     @ManyToOne
     @JsonBackReference
@@ -36,11 +36,11 @@ public class Comment {
         this.likes = new HashSet<>();
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -68,11 +68,11 @@ public class Comment {
 
     public void setTimeStamp(LocalDateTime localDateTime) { this.timeStamp = localDateTime; }
 
-    public Integer getLikesCount() {
+    public int getLikesCount() {
         return likes.size();
     }
 
-    public void setLike(Integer userId) {
+    public void setLike(int userId) {
         if (!likes.remove(userId)) {
             likes.add(userId);
         }

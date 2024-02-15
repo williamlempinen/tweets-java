@@ -6,7 +6,7 @@ import com.example.java_tweets.models.Tweet;
 import java.util.List;
 
 public class UserDTO {
-    private Integer id;
+    private int id;
     private String name;
     private String email;
     private List<Tweet> tweetList;
@@ -55,11 +55,11 @@ public class UserDTO {
     }
 
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 

@@ -1,15 +1,15 @@
 package com.example.java_tweets.models.dtos.request;
 
 public class TweetPostTweetDTO {
-    private Integer userId;
+    private int userId;
     private String userEmail;
     private String title;
     private String content;
-    public Integer getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
