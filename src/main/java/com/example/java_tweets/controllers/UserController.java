@@ -61,18 +61,18 @@ public class UserController {
     @GetMapping("/search")
     public @ResponseBody Iterable<UserDTO> searchUsers(@RequestParam String query,
                                                        @RequestParam(defaultValue = "0") int page,
-                                                       @RequestParam(defaultValue = "10") int size) {
+                                                       @RequestParam(defaultValue = "5") int size) {
         return userService.searchUsers(query, page, size);
     }
 
     //this endpoint is only for testing purposes!!
     @GetMapping("/find-all-info")
-    public @ResponseBody Iterable<User> findAllUsers() {
+    public @ResponseBody List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
     @GetMapping("/find-all")
-    public @ResponseBody Iterable<UserDTO> findAllUserDTOs() {
+    public @ResponseBody List<UserDTO> findAllUserDTOs() {
         return userService.findAllUserDTOs();
     }
 

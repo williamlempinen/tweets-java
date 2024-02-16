@@ -7,6 +7,7 @@ import com.example.java_tweets.models.Comment;
 import com.example.java_tweets.models.Tweet;
 import com.example.java_tweets.models.User;
 import com.example.java_tweets.models.dtos.request.TweetPostCommentDTO;
+import com.example.java_tweets.models.dtos.request.TweetPostLikeDTO;
 import com.example.java_tweets.models.dtos.request.TweetPostTweetDTO;
 import com.example.java_tweets.repositorys.CommentRepository;
 import com.example.java_tweets.repositorys.TweetRepository;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,6 +97,30 @@ public class TweetService {
                 .map(User::getId)
                 .flatMap(uId -> findTweetsByUser(uId).stream())
                 .collect(Collectors.toList());
+    }
+
+    public void likeTweet(TweetPostLikeDTO tweetPostLikeDTO) throws UserNotFoundException, TweetNotFoundException {
+        Tweet targetTweet = tweetRepository.findById(tweetPostLikeDTO.getTweetId()).orElse(null);
+        User targetUser = userRepository.findById(tweetPostLikeDTO.getUserId()).orElse(null);
+
+        if (targetTweet == null) {
+            throw new TweetNotFoundException(HttpStatus.NOT_FOUND, "Tweet not found");
+        }
+        if (targetUser == null) {
+            throw new UserNotFoundException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        targetTweet.setLike(tweetPostLikeDTO.getUserId());
+        tweetRepository.save(targetTweet);
+    }
+
+    public void deleteTweet(int tweetId) throws TweetNotFoundException {
+        Tweet targetTweet = tweetRepository.findById(tweetId).orElse(null);
+
+        if (targetTweet == null) {
+            throw new TweetNotFoundException(HttpStatus.NOT_FOUND, "Tweet not found");
+        }
+        commentRepository.deleteByOnTweetId(tweetId);
+        tweetRepository.delete(targetTweet);
     }
 
     public List<Comment> getTweetComment(int tweetId) {

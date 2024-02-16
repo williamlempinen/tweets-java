@@ -1,9 +1,6 @@
 package com.example.java_tweets.config;
 
-import com.example.java_tweets.config.exceptions.AuthException;
-import com.example.java_tweets.config.exceptions.DataAccessException;
-import com.example.java_tweets.config.exceptions.TweetNotFoundException;
-import com.example.java_tweets.config.exceptions.UserNotFoundException;
+import com.example.java_tweets.config.exceptions.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +25,11 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(TweetNotFoundException.class)
     public ResponseEntity<String> handleDataAccessException(TweetNotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), e.getHttpStatus());
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<String> handleDataAccessException(CommentNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), e.getHttpStatus());
     }
 }
