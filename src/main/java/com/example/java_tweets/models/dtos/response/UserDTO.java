@@ -6,12 +6,13 @@ import com.example.java_tweets.models.Tweet;
 import java.util.List;
 
 public class UserDTO {
-    private Integer id;
+    private int id;
     private String name;
     private String email;
     private List<Tweet> tweetList;
     private List<Comment> commentList;
     private List<UserDTO> friendsList;
+    private String token;
 
     public List<UserDTO> getFriendsList() {
         return friendsList;
@@ -54,14 +55,21 @@ public class UserDTO {
     }
 
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     @Override
     public String toString() {

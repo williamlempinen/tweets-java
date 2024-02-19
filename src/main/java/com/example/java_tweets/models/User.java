@@ -16,7 +16,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private int id;
 
     private String name;
 
@@ -24,15 +24,15 @@ public class User {
 
     private String password;
 
-    @OneToMany(mappedBy = "tweetOwner")
+    @OneToMany(mappedBy = "tweetOwner", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Tweet> tweetList;
 
-    @OneToMany(mappedBy = "commentOwner")
+    @OneToMany(mappedBy = "commentOwner", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Comment> commentList;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_friends",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -46,11 +46,11 @@ public class User {
         this.commentList = new ArrayList<>();
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 

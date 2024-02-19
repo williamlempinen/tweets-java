@@ -1,23 +1,23 @@
 package com.example.java_tweets.models.dtos.request;
 
 public class TweetPostCommentDTO {
-    private Integer tweetId;
-    private Integer userId;
+    private int tweetId;
+    private int userId;
     private String content;
 
-    public Integer getTweetId() {
+    public int getTweetId() {
         return tweetId;
     }
 
-    public void setTweetId(Integer tweetId) {
+    public void setTweetId(int tweetId) {
         this.tweetId = tweetId;
     }
 
-    public Integer getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
