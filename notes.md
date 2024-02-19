@@ -2,7 +2,7 @@
 
 JWT
 
-security -> user's credentials are not sent as just a plain text
+no refresh tokens yet
 
 
 

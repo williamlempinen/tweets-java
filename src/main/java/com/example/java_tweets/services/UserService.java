@@ -4,7 +4,6 @@ import com.example.java_tweets.config.exceptions.AuthException;
 import com.example.java_tweets.config.exceptions.DataAccessException;
 import com.example.java_tweets.config.exceptions.UserNotFoundException;
 import com.example.java_tweets.models.User;
-import com.example.java_tweets.models.dtos.request.CommentEventDTO;
 import com.example.java_tweets.models.dtos.request.UserCreateDTO;
 import com.example.java_tweets.models.dtos.request.UserFriendStatusDTO;
 import com.example.java_tweets.models.dtos.request.UserLoginDTO;

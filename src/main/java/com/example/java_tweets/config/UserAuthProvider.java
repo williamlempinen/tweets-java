@@ -58,7 +58,7 @@ public class UserAuthProvider {
         return new UsernamePasswordAuthenticationToken(userDTO, null, Collections.emptyList());
     }
 
-    public Authentication validateTokenStrongly(String token) throws Exception {
+    public Authentication validateTokenStrongly(String token) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decoded = verifier.verify(token);
@@ -66,6 +66,5 @@ public class UserAuthProvider {
 
         return new UsernamePasswordAuthenticationToken(userDTO, null, Collections.emptyList());
     }
-
 
 }
