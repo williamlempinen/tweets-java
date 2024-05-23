@@ -8,3 +8,7 @@ Endpoints can be found from the code :D
 Techonologies used in this project are Java, Springboot.
 
 Frontend code can be found [here](https://github.com/williamlempinen/tweets-web)
+
+#### 23.5.2024
+
+This project is archived
